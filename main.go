@@ -44,11 +44,45 @@ func main() {
 				implemented by setting the PWD env to the path given, idk how viable this is but oh well its how
 				the tests pass
 			*/
-			_, err := os.ReadDir(statements[1])
-			if err != nil {
-				fmt.Printf("cd: %v: No such file or directory\n", statements[1])
-			} else {
-				os.Setenv("PWD", statements[1])
+			path = statements[1]
+			_, err := os.ReadDir(path)
+			pathArr := []rune(path)
+			if pathArr[0] == '/' {
+				/*
+					Handles absolute paths, for example switch to any directory from any directory using for example
+					/usr/bin/
+				*/
+				if err != nil {
+					fmt.Printf("cd: %v: No such file or directory\n", statements[1])
+				} else {
+					os.Setenv("PWD", statements[1])
+				}
+			} else if pathArr[0] == '~' {
+				/*
+					"cd ~" handles taking you back to the home directory of the system
+				*/
+				homeDir := os.Getenv("HOME")
+				os.Setenv("PWD", homeDir)
+			} else if pathArr[0] == '.' && pathArr[1] == '.' {
+				/*
+					Handles ../ which goes back to a directory in the file tree
+				*/
+				backAmount := len(strings.Split(statements[1], "/"))
+				currDir := os.Getenv("PWD")
+				currDirArr := []rune(currDir)
+				newDir := ""
+				for i := 0; i < backAmount; i++ {
+					newDir += string(currDirArr[i])
+				}
+				os.Setenv("PWD", newDir)
+			} else if pathArr[0] == '.' {
+				/*
+					Handles relative paths, for example if you're in /usr/ and want to go into bin cd ./bin will take you
+					to /usr/bin
+				*/
+				currPath := os.Getenv("PWD")
+				newPath := currPath + statements[1][1:]
+				os.Setenv("PWD", newPath)
 			}
 		} else if statements[0] == "pwd" {
 			/*
