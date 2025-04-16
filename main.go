@@ -34,10 +34,47 @@ func main() {
 			exitCode, _ := strconv.Atoi(statements[1])
 			os.Exit(exitCode)
 		} else if statements[0] == "echo" {
-			for _, statement := range statements[1:] {
-				fmt.Printf("%v ", statement)
+			prefix := []rune(statements[1])
+			suffix := []rune(statements[len(statements)-1])
+			newStr := ""
+
+			if prefix[0] == 39 && (suffix[len(suffix)-1]) == 39 {
+				for _, statement := range statements[1:] {
+					statementChars := []rune(statement)
+					for _, chars := range statementChars {
+
+						// fmt.Println(statementChars)
+
+						if chars == 32 {
+
+						} else if chars != 39 {
+							newStr += string(chars)
+
+						}
+
+					}
+					newStr += " "
+				}
+				fmt.Printf("%v\n", newStr)
+			} else {
+				for _, statement := range statements[1:] {
+					statementChars := []rune(statement)
+					for i, chars := range statementChars {
+
+						// fmt.Println(statementChars)
+
+						if chars == 32 {
+
+						} else if chars != 39 {
+							newStr += string(chars)
+							if i == len(statementChars)-1 {
+								newStr += " "
+							}
+						}
+					}
+				}
+				fmt.Printf("%v\n", newStr)
 			}
-			fmt.Println()
 		} else if statements[0] == "cd" {
 			/*
 				Again due to the issue with Go's built in os.Chdir and other os functions, cd is
